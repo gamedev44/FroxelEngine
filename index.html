@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Voxel Landscape grid system poc  (Froxel engine) part 1 V1</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .scene {
+            perspective: 800px;
+            position: relative;
+            width: 100%;
+            height: 50%;
+            transform-style: preserve-3d;
+            background-image: url('https://i.ibb.co/4gVVC8p/BACKMAP.png');
+        }
+
+        .cube {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform-style: preserve-3d;
+        }
+
+        .side {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            opacity: .95;
+            background-size: cover;
+        }
+
+        .back {
+            transform: translateZ(-25px) rotateY(180deg);
+            background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/0ed42f95-8bf2-48ec-b9d4-5a41fd8a9b18/d5x9vzb-3c1a3bc8-6d8e-4c5f-81a7-2bd1fee8803a.png/v1/fill/w_1024,h_579,q_80,strp/minecraft_grass_background_by_lastvoltage_d5x9vzb-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTc5IiwicGF0aCI6IlwvZlwvMGVkNDJmOTUtOGJmMi00OGVjLWI5ZDQtNWE0MWZkOGE5YjE4XC9kNXg5dnpiLTNjMWEzYmM4LTZkOGUtNGM1Zi04MWE3LTJiZDFmZWU4ODAzYS5wbmciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.f1RSz94nULqREK78HTpRSfQFekQIGWIexFoOeRgFeTI');
+        }
+
+        .left {
+            transform: translateX(-25px) rotateY(-90deg);
+            background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/0ed42f95-8bf2-48ec-b9d4-5a41fd8a9b18/d5x9vzb-3c1a3bc8-6d8e-4c5f-81a7-2bd1fee8803a.png/v1/fill/w_1024,h_579,q_80,strp/minecraft_grass_background_by_lastvoltage_d5x9vzb-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTc5IiwicGF0aCI6IlwvZlwvMGVkNDJmOTUtOGJmMi00OGVjLWI5ZDQtNWE0MWZkOGE5YjE4XC9kNXg5dnpiLTNjMWEzYmM4LTZkOGUtNGM1Zi04MWE3LTJiZDFmZWU4ODAzYS5wbmciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.f1RSz94nULqREK78HTpRSfQFekQIGWIexFoOeRgFeTI');
+        }
+
+        .right {
+            transform: translateX(25px) rotateY(90deg);
+            background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/0ed42f95-8bf2-48ec-b9d4-5a41fd8a9b18/d5x9vzb-3c1a3bc8-6d8e-4c5f-81a7-2bd1fee8803a.png/v1/fill/w_1024,h_579,q_80,strp/minecraft_grass_background_by_lastvoltage_d5x9vzb-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTc5IiwicGF0aCI6IlwvZlwvMGVkNDJmOTUtOGJmMi00OGVjLWI5ZDQtNWE0MWZkOGE5YjE4XC9kNXg5dnpiLTNjMWEzYmM4LTZkOGUtNGM1Zi04MWE3LTJiZDFmZWU4ODAzYS5wbmciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.f1RSz94nULqREK78HTpRSfQFekQIGWIexFoOeRgFeTI');
+        }
+
+        .top {
+            transform: translateY(-25px) rotateX(90deg);
+            background-image: url('https://opengameart.org/sites/default/files/grass03.png');
+        }
+
+        .bottom {
+            transform: translateY(25px) rotateX(-90deg);
+            background-image: url('https://img.freepik.com/free-photo/rough-stone-wall-texture_23-2147626001.jpg');
+        }
+
+        .front {
+            transform: translateZ(25px);
+            background-image: url('https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/0ed42f95-8bf2-48ec-b9d4-5a41fd8a9b18/d5x9vzb-3c1a3bc8-6d8e-4c5f-81a7-2bd1fee8803a.png/v1/fill/w_1024,h_579,q_80,strp/minecraft_grass_background_by_lastvoltage_d5x9vzb-fullview.jpg?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9NTc5IiwicGF0aCI6IlwvZlwvMGVkNDJmOTUtOGJmMi00OGVjLWI5ZDQtNWE0MWZkOGE5YjE4XC9kNXg5dnpiLTNjMWEzYmM4LTZkOGUtNGM1Zi04MWE3LTJiZDFmZWU4ODAzYS5wbmciLCJ3aWR0aCI6Ijw9MTAyNCJ9XV0sImF1ZCI6WyJ1cm46c2VydmljZTppbWFnZS5vcGVyYXRpb25zIl19.f1RSz94nULqREK78HTpRSfQFekQIGWIexFoOeRgFeTI');
+        }
+    </style>
+</head>
+<body>
+<H1> Froxel Engine Framework by:Risk - (Inspired Heavily By Minecraft and Fortress Craft) </h1>
+<h2> This is an experimental framework ive decided to make as a Very Rough yet easy to Grasp Proof of Concept for whats to come next Very Soon.  ( Stay Tuned...! )  </h2>
+    <div class="scene">
+        <!-- Here you would script or manually place cubes -->
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const scene = document.querySelector('.scene');
+            let cubes = []; // Array to store all cubes
+
+            // Function to create a cube
+            function createCube(x, y, z) {
+                const cube = document.createElement('div');
+                cube.className = 'cube';
+                cube.style.transform = `translate3d(${x}px, ${y}px, ${z}px)`;
+                
+                ['back', 'left', 'right', 'top', 'bottom', 'front'].forEach(side => {
+                    const sideElement = document.createElement('div');
+                    sideElement.className = `side ${side}`;
+                    cube.appendChild(sideElement);
+                });
+                scene.appendChild(cube);
+                cubes.push(cube);
+            }
+
+            // Generate a flat map (example 5x5 grid)
+            for (let x = 0; x < 5; x++) {
+                for (let z = 0; z < 5; z++) {
+                    createCube(x * 50, 0, z * 50); // 50px is the size of each cube
+                }
+            }
+
+            // Camera control with mouse
+            let rotationX = 0, rotationY = 0;
+            document.addEventListener('mousemove', (e) => {
+                rotationX += e.movementY * 0.1;
+                rotationY += e.movementX * 0.1;
+                scene.style.transform = `rotateX(${rotationX}deg) rotateY(${rotationY}deg)`;
+            });
+        });
+    </script>
+</body>
+</html>
